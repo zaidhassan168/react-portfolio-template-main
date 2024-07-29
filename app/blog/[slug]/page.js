@@ -1,33 +1,42 @@
 import React, { useRef, useState } from "react";
-import { getPostBySlug, getAllPosts } from "../../utils/api";
-import Header from "../../components/Header";
-import ContentSection from "../../components/ContentSection";
-import Footer from "../../components/Footer";
-import Head from "next/head";
-import { useIsomorphicLayoutEffect } from "../../utils";
-import { stagger } from "../../animations";
-import Button from "../../components/Button";
-import BlogEditor from "../../components/BlogEditor";
-import { useRouter } from "next/router";
-import Cursor from "../../components/Cursor";
-import data from "../../data/portfolio.json";
+import { getPostBySlug, getAllPosts } from "../../../utils/api";
+import Header from "../../../components/Header";
+import ContentSection from "../../../components/ContentSection";
+import Footer from "../../../components/Footer";
+import { Metadata } from "next"
+import { useIsomorphicLayoutEffect } from "../../../utils";
+import { stagger } from "../../../animations";
+import Button from "../../../components/Button";
+import BlogEditor from "../../../components/BlogEditor";
+import { usePathname } from "next/navigation";
+import Cursor from "../../../components/Cursor";
+import data from "../../../data/portfolio.json";
 
 const BlogPost = ({ post }) => {
   const [showEditor, setShowEditor] = useState(false);
   const textOne = useRef();
   const textTwo = useRef();
-  const router = useRouter();
-
+  const router = usePathname();
+  const post = getPostBySlug(params.slug, [
+    "date",
+    "slug",
+    "preview",
+    "title",
+    "tagline",
+    "preview",
+    "image",
+    "content",
+  ]);
   useIsomorphicLayoutEffect(() => {
     stagger([textOne.current, textTwo.current], { y: 30 }, { y: 0 });
   }, []);
 
   return (
     <>
-      <Head>
+      <Metadata>
         <title>{"Blog - " + post.title}</title>
         <meta name="description" content={post.preview} />
-      </Head>
+      </Metadata>
       {data.showCursor && <Cursor />}
 
       <div
@@ -77,27 +86,40 @@ const BlogPost = ({ post }) => {
   );
 };
 
-export async function getStaticProps({ params }) {
-  const post = getPostBySlug(params.slug, [
-    "date",
-    "slug",
-    "preview",
-    "title",
-    "tagline",
-    "preview",
-    "image",
-    "content",
-  ]);
+// export async function getStaticProps({ params }) {
+//   const post = getPostBySlug(params.slug, [
+//     "date",
+//     "slug",
+//     "preview",
+//     "title",
+//     "tagline",
+//     "preview",
+//     "image",
+//     "content",
+//   ]);
 
+//   return {
+//     props: {
+//       post: {
+//         ...post,
+//       },
+//     },
+//   };
+// }
+
+export async function generateStaticParams() {
+  const posts = getAllPosts(["slug"]);
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
+}
+export async function generateMetadata({ params }) {
+  const post = getPostBySlug(params.slug, ["title", "preview"]);
   return {
-    props: {
-      post: {
-        ...post,
-      },
-    },
+    title: `Blog - ${post.title}`,
+    description: post.preview,
   };
 }
-
 export async function getStaticPaths() {
   const posts = getAllPosts(["slug"]);
 
