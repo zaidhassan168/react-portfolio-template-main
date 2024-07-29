@@ -1,3 +1,4 @@
+'use client';
 import { useRef } from "react";
 import Header from "../components/Header";
 import ServiceCard from "../components/ServiceCard";

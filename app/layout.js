@@ -1,5 +1,6 @@
-import { ThemeProvider } from "next-themes";
-import '../app/'
+import React from 'react';
+import { ThemeProvider } from 'next-themes';
+import './styles/globals.css';
 
 export default function RootLayout({ children }) {
   return (
